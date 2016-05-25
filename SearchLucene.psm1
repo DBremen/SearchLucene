@@ -1,4 +1,5 @@
 ﻿#requires -version 3.0
+#http://lucene.apache.org/core/3_6_1/queryparsersyntax.html
 Add-Type -Path $PSSCriptRoot\Lucene.Net.dll
 $INDEX_DIRECTORY = "$env:temp\luceneIndex"
 if (!(Test-Path 'C:\Program Files (x86)\es\es.exe')){
@@ -33,7 +34,7 @@ function New-LuceneIndex {
         [string]$IndexDirectory = $INDEX_DIRECTORY
     )
     if (-not (Test-Path $IndexDirectory)){
-        Remove-Item $IndexDirectory -Recurse -Force
+        Remove-Item $IndexDirectory -Recurse -Force -ErrorAction SilentlyContinue
     }
     $directory = [Lucene.Net.Store.FSDirectory]::Open($IndexDirectory)
     $analyzer  = New-Object Lucene.Net.Analysis.Standard.StandardAnalyzer("LUCENE_CURRENT")
@@ -72,7 +73,7 @@ function Find-FileLucene{
         .EXAMPLE
             #Search all indexed files for the word 'test'
             Find-FileLucene 'test' -Detailed
-            #outputs detailed results including matching LineNumber and Line grouped by Path
+            #outputs detailed results including matching LineNumber and Line
         .EXAMPLE
             #Search all indexed .ps1 and .txt files for the word 'test'
             Find-FileLucene 'test' -Include @('.txt','.ps1')
@@ -126,7 +127,7 @@ function Find-FileLucene{
         }
     } 
     if ($Detailed){
-        $result | select Path, LineNumber, Line | Group-Object Path
+        $result | select Path, LineNumber, Line 
     }
     else{
         $result
