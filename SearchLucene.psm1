@@ -1,7 +1,7 @@
 ﻿#requires -version 3.0
-#http://lucene.apache.org/core/3_6_1/queryparsersyntax.html
+#New-MarkdownHelp -Module SearchLucene -OutputFolder "$env:USERPROFILE\Dropbox\WindowsPowerShell_ProgramFiles\Modules\SearchLucene\" -Force
 Add-Type -Path $PSSCriptRoot\Lucene.Net.dll
-$INDEX_DIRECTORY = "$env:temp\luceneIndex"
+$global:__INDEX_DIRECTORY = "$env:MyDocuments\luceneIndex"
 if (!(Test-Path 'C:\Program Files (x86)\es\es.exe')){
     Write-Warning 'Everything commandline (es.exe) not found please download and install to use this script'
     exit
@@ -19,6 +19,8 @@ function New-LuceneIndex {
             #no output but will take quite a while for a whole drive
             Create-LuceneIndex -DirectoryToBeIndex c:\
         .LINK
+            https://powershellone.wordpress.com/2016/05/26/full-text-search-using-powershell-everything-and-lucene/
+        .LINK
             Find-FileLucene
     #>
     [CmdletBinding()]
@@ -28,14 +30,17 @@ function New-LuceneIndex {
         [string]$DirectoryToBeIndexed = 'c:\',
         #The file extension(s) to include in the search
         [Parameter(Position = 1)]
-        [string[]]$Include = @('*.ps1','*.psm1','*.txt*'),
+        [string[]]$Include = @('*.ps1','*.psm1','*.txt','*.epub','*.pdf','*.doc','*.docx','*.pptx'),
         #Directory that will hold the index files
         [Parameter(Position = 2)]
-        [string]$IndexDirectory = $INDEX_DIRECTORY
+        [string]$IndexDirectory = $__INDEX_DIRECTORY   
     )
-    if (-not (Test-Path $IndexDirectory)){
+    Add-Type -Path  'C:\Scripts\ps1\EpubSharp\EpubSharp.dll'
+    Add-Type -Path C:\Scripts\ps1\toxy\Toxy.dll
+    if (Test-Path $IndexDirectory){
         Remove-Item $IndexDirectory -Recurse -Force -ErrorAction SilentlyContinue
     }
+    $null = mkdir $IndexDirectory -Force
     $directory = [Lucene.Net.Store.FSDirectory]::Open($IndexDirectory)
     $analyzer  = New-Object Lucene.Net.Analysis.Standard.StandardAnalyzer("LUCENE_CURRENT")
     #index in ram
@@ -49,12 +54,24 @@ function New-LuceneIndex {
     $files = & "C:\Program Files (x86)\es\es.exe" $DirectoryToBeIndexed $IncludeArg
     foreach ($file in $files) {
         try{ 
-            $text=[IO.File]::ReadAllText($file) 
+            $ext = [IO.Path]::GetExtension($file)
+            if ($ext -eq '.epub'){
+                $book = [EpubSharp.EpubReader]::Read($file)
+                $text = $book.ToPlainText()
+            }
+            elseif ($ext -in ('.pdf','.doc','.docx','.pptx')){
+                $context = new-object toxy.ParserContext($file);
+                $parser = [toxy.parserfactory]::CreateText($context)     
+                $text = $parser.Parse()
+            }
+            else{
+                $text=[IO.File]::ReadAllText($file) 
+            }
             $doc = New-Object Lucene.Net.Documents.Document
             #default name = fulltext (doesn't need to be specified in query)
             $doc.Add((New-Object Lucene.Net.Documents.Field("fulltext",$text,"YES","ANALYZED")))
             $doc.Add((New-Object Lucene.Net.Documents.Field]("path",$file,"YES","ANALYZED")))
-            $doc.Add((New-Object Lucene.Net.Documents.Field("extension",[IO.Path]::GetExtension($file),"YES","ANALYZED")))
+            $doc.Add((New-Object Lucene.Net.Documents.Field("extension",$ext,"YES","ANALYZED")))
             $indexWriter.AddDocument($doc)
         }
         catch{
@@ -78,7 +95,11 @@ function Find-FileLucene{
             #Search all indexed .ps1 and .txt files for the word 'test'
             Find-FileLucene 'test' -Include @('.txt','.ps1')
         .LINK
+            https://powershellone.wordpress.com/2016/05/26/full-text-search-using-powershell-everything-and-lucene/
+        .LINK
             New-LuceneIndex
+        .LINK
+            http://lucene.apache.org/core/3_6_1/queryparsersyntax.html
     #>
     [CmdletBinding()]
     [Alias('ffl')]
@@ -90,7 +111,7 @@ function Find-FileLucene{
         #The file extension(s) to include in the search
         [string[]]$Include = '*.ps1',
         #The directory that contains the index defaults to variable specified at the top of the module
-        [string]$IndexDirectory = $INDEX_DIRECTORY,
+        [string]$IndexDirectory = $__INDEX_DIRECTORY,
         #Include detailed results with matching line
         [switch]$Detailed
 
