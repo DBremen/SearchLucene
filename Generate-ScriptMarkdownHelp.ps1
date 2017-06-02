@@ -7,8 +7,10 @@
         platyPS is used to generate the function level help + the README.md is generated "manually".
 	.PARAMETER Module
 		Name of the Module to generate help for.
+    .PARAMETER RepoUrl
+        Url for the Git repository homepage
 	.EXAMPLE
-       Generate-ScriptMarkdownHelp SearchLucene
+       Generate-ScriptMarkdownHelp -Module SearchLucene  -RepoUrl https://github.com/DBremen/SearchLucene
 #>
     [CmdletBinding()]
     Param($Module)
@@ -37,10 +39,10 @@ See [Link to my blog post](https://powershellone.wordpress.com/2016/05/26/full-t
                 $link = $link.navigationLink.uri | Where-Object {$_ -like '*powershellone*'}
             }
             $mdFile = $function.Name + '.md'
-            $summaryTable += "`n| $($function.Name) | $($help.Synopsis) | $("[Link](https://github.com/DBremen/SearchLucene/blob/master/docs/$mdFile)") |"
+            $summaryTable += "`n| $($function.Name) | $($help.Synopsis) | $("[Link]($($RepoUrl)/blob/master/docs/$mdFile)") |"
         }
     }
-    $docFolder = "$(Split-Path (Get-Module SearchLucene)[0].Path)\docs"
+    $docFolder = "$(Split-Path (Get-Module $Module)[0].Path)\docs"
     $summaryTable | Set-Content "$(Split-Path $docFolder -Parent)/README.md" -Force
     $documenation = New-MarkdownHelp -Module $Module -OutputFolder $docFolder -Force
     foreach ($file in (dir $docFolder)){
@@ -49,4 +51,4 @@ See [Link to my blog post](https://powershellone.wordpress.com/2016/05/26/full-t
     #sanity check if help file were generated for each script
     [PSCustomObject]$htCheck
 }
- Generate-ScriptMarkdownHelp SearchLucene
+Generate-ScriptMarkdownHelp SearchLucene -RepoUrl https://github.com/DBremen/SearchLucene
