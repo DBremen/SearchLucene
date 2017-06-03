@@ -13,11 +13,12 @@
        Generate-ScriptMarkdownHelp -Module SearchLucene  -RepoUrl https://github.com/DBremen/SearchLucene
 #>
     [CmdletBinding()]
-    Param($Module)
+    Param($Module,$RepoUrl)
     $summaryTable = @'
 # SearchLucene
 Full text search using PowerShell, Everything, and Lucene.
-See [Link to my blog post](https://powershellone.wordpress.com/2016/05/26/full-text-search-using-powershell-everything-and-lucene/) for more details
+See [link to my blog post](https://powershellone.wordpress.com/2016/05/26/full-text-search-using-powershell-everything-and-lucene/) for more details.
+
 
 | Function | Synopsis | Documentation |
 | --- | --- | --- |
