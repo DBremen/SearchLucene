@@ -5,9 +5,15 @@ Search file using Lucene.Net
 
 ## SYNTAX
 
+### Normal (Default)
 ```
 Find-FileLucene [-searchText] <String> [-Path <String>] [-Include <String[]>] [-IndexDirectory <String>]
- [-Detailed]
+```
+
+### Detailed
+```
+Find-FileLucene [-searchText] <String> [-Path <String>] [-Include <String[]>] [-IndexDirectory <String>]
+ [-Detailed] [-MatchColor <ConsoleColor>]
 ```
 
 ## DESCRIPTION
@@ -98,12 +104,28 @@ Include detailed results with matching line
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: Detailed
 Aliases: 
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MatchColor
+{{Fill MatchColor Description}}
+
+```yaml
+Type: ConsoleColor
+Parameter Sets: Detailed
+Aliases: 
+Accepted values: Black, DarkBlue, DarkGreen, DarkCyan, DarkRed, DarkMagenta, DarkYellow, Gray, DarkGray, Blue, Green, Cyan, Red, Magenta, Yellow, White
+
+Required: False
+Position: Named
+Default value: DarkYellow
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

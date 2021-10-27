@@ -17,7 +17,7 @@ Properties index are fulltext, path, and extension of the files in the specified
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-#Create the index for the whole c:\ drive for ps1, psm1, and txt files (default extensions)
+#Create the index for the whole c:\ drive for '*.ps1', '*.psm1', '*.txt', '*.epub', '*.pdf', '*.doc', '*.docx', '*.pptx', '*.js', '*.php', '*.ejs' files (default extensions)
 ```
 
 #no output but will take quite a while for a whole drive
@@ -50,7 +50,7 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: @('*.ps1','*.psm1','*.txt','*.epub','*.pdf','*.doc','*.docx','*.pptx')
+Default value: @('*.ps1', '*.psm1', '*.txt', '*.epub', '*.pdf', '*.doc', '*.docx', '*.pptx', '*.js', '*.php', '*.ejs')
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
